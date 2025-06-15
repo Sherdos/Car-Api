@@ -7,16 +7,12 @@ from sqlmodel import Session
 from src.core.database import create_db_and_tables, get_session
 from src.apps.car.models import Car
 from src.apps.car.schemas import CarCreateSchema, CarReadSchema
+from src.apps.car.services import CarService
 
 
-app = FastAPI()
+# models -> repositories -> services -> routers
 
-
-def get_by_id(session: Session, car_id: int) -> Car:
-    try:
-        return session.query(Car).filter(Car.id == car_id).one()
-    except:
-        raise HTTPException(404, "Car not found")
+app = FastAPI(title="Car API", description="API for managing cars", version="0.0.1")
 
 
 @app.on_event("startup")
@@ -43,7 +39,7 @@ def search_car(word: str, session: Session = Depends(get_session)) -> CarReadSch
 def get_car_by_id(
     car_id: int, session: Session = Depends(get_session)
 ) -> CarReadSchema:
-    car = get_by_id(session, car_id)
+    car = CarService(session).get_car(car_id)
     return car
 
 
@@ -51,29 +47,19 @@ def get_car_by_id(
 def add_car(
     car: CarCreateSchema, session: Session = Depends(get_session)
 ) -> CarReadSchema:
-    new_car = Car(name=car.name, color=car.color, mark=car.mark)
-    session.add(new_car)
-    session.commit()
+    new_car = CarService(session).create_car(car)
     return new_car
 
 
-@app.put("/cars/{car_id}", response_model=List[CarReadSchema])
+@app.put("/cars/{car_id}", response_model=CarReadSchema)
 def edit_car(
-    car_id: int, car: CarReadSchema, session: Session = Depends(get_session)
-) -> List[CarReadSchema]:
-    exist_car = get_by_id(session, car_id)
-    exist_car.name = car.name
-    exist_car.color = car.color
-    exist_car.mark = car.mark
-    session.add(exist_car)
-    session.commit()
-    cars = session.query(Car).all()
-    return cars
+    car_id: int, car: CarCreateSchema, session: Session = Depends(get_session)
+) -> CarReadSchema:
+    updated_car = CarService(session).update_car(car_id, car)
+    return updated_car
 
 
 @app.delete("/cars/{car_id}", response_model=dict)
 def delete_car(car_id: int, session: Session = Depends(get_session)) -> dict:
-    stmt = delete(Car).where(Car.id == car_id)
-    session.execute(stmt)
-    session.commit()
-    return {"message": "Car deleted successfully"}
+    message = CarService(session).delete_car(car_id)
+    return message
