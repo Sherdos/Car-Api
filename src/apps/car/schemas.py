@@ -4,7 +4,7 @@ from pydantic import BaseModel
 class CarBaseSchema(BaseModel):
     name: str
     color: str
-    mark: str
+    mark_id: int
 
 
 class CarCreateSchema(CarBaseSchema):

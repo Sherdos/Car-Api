@@ -1,5 +1,6 @@
-from typing import List
-from fastapi import FastAPI, HTTPException, Depends
+from typing import List, Optional
+from fastapi import FastAPI, HTTPException, Depends, Query
+
 from pydantic import BaseModel
 from sqlalchemy import delete, select
 from sqlmodel import Session
@@ -12,7 +13,11 @@ from src.apps.car.services import CarService
 
 # models -> repositories -> services -> routers
 
-app = FastAPI(title="Car API", description="API for managing cars", version="0.0.1")
+app = FastAPI(
+    title="Car API",
+    description="API for managing cars",
+    version="0.0.1",
+)
 
 
 @app.on_event("startup")
@@ -20,22 +25,21 @@ def on_startup():
     create_db_and_tables()
 
 
-@app.get("/cars", response_model=List[CarReadSchema])
-def get_all_cars(session: Session = Depends(get_session)) -> List[CarReadSchema]:
-    cars = session.query(Car).all()
+@app.get("/cars", response_model=List[CarReadSchema], tags=["Cars"])
+def get_all_cars(
+    mark: int, session: Session = Depends(get_session)
+) -> List[CarReadSchema]:
+    cars = CarService(session).get_all_cars(mark)
     return cars
 
 
-@app.get("/search", response_model=CarReadSchema)
+@app.get("/search", response_model=List[CarReadSchema], tags=["Cars"])
 def search_car(word: str, session: Session = Depends(get_session)) -> CarReadSchema:
-    cars = session.query(Car).all()
-    for car in cars:
-        if word in car.name:
-            return car
-    raise HTTPException(404, "Car not found")
+    cars = CarService(session).search_car(word)
+    return cars
 
 
-@app.get("/cars/{car_id}", response_model=CarReadSchema)
+@app.get("/cars/{car_id}", response_model=CarReadSchema, tags=["Cars"])
 def get_car_by_id(
     car_id: int, session: Session = Depends(get_session)
 ) -> CarReadSchema:
@@ -43,7 +47,7 @@ def get_car_by_id(
     return car
 
 
-@app.post("/cars/", response_model=CarReadSchema)
+@app.post("/cars/", response_model=CarReadSchema, tags=["Cars"])
 def add_car(
     car: CarCreateSchema, session: Session = Depends(get_session)
 ) -> CarReadSchema:
@@ -51,7 +55,7 @@ def add_car(
     return new_car
 
 
-@app.put("/cars/{car_id}", response_model=CarReadSchema)
+@app.put("/cars/{car_id}", response_model=CarReadSchema, tags=["Cars"])
 def edit_car(
     car_id: int, car: CarCreateSchema, session: Session = Depends(get_session)
 ) -> CarReadSchema:
@@ -59,7 +63,7 @@ def edit_car(
     return updated_car
 
 
-@app.delete("/cars/{car_id}", response_model=dict)
+@app.delete("/cars/{car_id}", response_model=dict, tags=["Cars"])
 def delete_car(car_id: int, session: Session = Depends(get_session)) -> dict:
     message = CarService(session).delete_car(car_id)
     return message

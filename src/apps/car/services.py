@@ -11,6 +11,10 @@ class CarService:
         self.session = session
         self.repository = CarRepository(session)
 
+    def get_all_cars(self, mark_id: int) -> list[Car]:
+        cars = self.repository.get_all(mark_id)
+        return cars
+
     def create_car(self, car_data: CarCreateSchema) -> Car:
         car = self.repository.create(car_data)
         return car
@@ -32,3 +36,11 @@ class CarService:
         if message == None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
         return message
+
+    def search_car(self, word: str) -> list[Car]:
+        cars = self.repository.search(word)
+        if not cars:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Car not found"
+            )
+        return cars
