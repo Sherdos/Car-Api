@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlmodel import Session
 from fastapi import HTTPException, status
 
@@ -11,12 +12,12 @@ class CarService:
         self.session = session
         self.repository = CarRepository(session)
 
-    def get_all_cars(self, mark_id: int) -> list[Car]:
+    def get_all_cars(self, mark_id: Optional[int] = None) -> list[Car]:
         cars = self.repository.get_all(mark_id)
         return cars
 
-    def create_car(self, username: str, car_data: CarCreateSchema) -> Car:
-        car = self.repository.create(username, car_data)
+    def create_car(self, user_data: dict, car_data: CarCreateSchema) -> Car:
+        car = self.repository.create(user_data["id"], car_data)
         return car
 
     def get_car(self, car_id) -> Car | None:
@@ -29,15 +30,15 @@ class CarService:
         self, car_id: int, user_data: dict, car_data: CarCreateSchema
     ) -> Car:
 
-        car = self.repository.update(user_data, car_id, car_data)
+        car = self.repository.update(user_data["id"], car_id, car_data)
         if type(car) is dict:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail=car.get("message")
             )
         return car
 
-    def delete_car(self, car_id: int) -> dict:
-        message = self.repository.delete(car_id)
+    def delete_car(self, car_id: int, user_data: dict) -> dict:
+        message = self.repository.delete(car_id, user_data["id"])
         if message == None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
         return message

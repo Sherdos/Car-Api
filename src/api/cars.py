@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, FastAPI, Depends
 
 from sqlmodel import Session
@@ -14,17 +14,19 @@ car_router = APIRouter()
 
 @car_router.get("", response_model=List[CarReadSchema])
 def get_all_cars(
-    mark: int = None,
+    mark_id: Optional[int] = None,
     session: Session = Depends(get_session),
 ) -> List[CarReadSchema]:
-    cars = CarService(session).get_all_cars(mark)
-    return cars
+    cars = CarService(session).get_all_cars(mark_id)
+    return [CarReadSchema.from_orm(car) for car in cars]
 
 
 @car_router.get("/search", response_model=List[CarReadSchema])
-def search_car(word: str, session: Session = Depends(get_session)) -> CarReadSchema:
+def search_car(
+    word: str, session: Session = Depends(get_session)
+) -> List[CarReadSchema]:
     cars = CarService(session).search_car(word)
-    return cars
+    return [CarReadSchema.from_orm(car) for car in cars]
 
 
 @car_router.get("/{car_id}", response_model=CarReadSchema)
@@ -32,7 +34,7 @@ def get_car_by_id(
     car_id: int, session: Session = Depends(get_session)
 ) -> CarReadSchema:
     car = CarService(session).get_car(car_id)
-    return car
+    return CarReadSchema.from_orm(car)
 
 
 @car_router.post("/", response_model=CarReadSchema)
@@ -45,7 +47,7 @@ def add_car(
         user_data,
         car,
     )
-    return new_car
+    return CarReadSchema.from_orm(new_car)
 
 
 @car_router.put("/{car_id}", response_model=CarReadSchema)
@@ -55,11 +57,19 @@ def edit_car(
     session: Session = Depends(get_session),
     user_data: dict = Depends(get_current_user),
 ) -> CarReadSchema:
+    print("User data:", user_data)
     updated_car = CarService(session).update_car(car_id, user_data, car)
-    return updated_car
+    return CarReadSchema.from_orm(updated_car)
 
 
-@car_router.delete("/{car_id}", response_model=dict)
-def delete_car(car_id: int, session: Session = Depends(get_session)) -> dict:
-    message = CarService(session).delete_car(car_id)
+@car_router.delete(
+    "/{car_id}",
+    response_model=dict,
+)
+def delete_car(
+    car_id: int,
+    session: Session = Depends(get_session),
+    user_data: dict = Depends(get_current_user),
+) -> dict:
+    message = CarService(session).delete_car(car_id, user_data)
     return message

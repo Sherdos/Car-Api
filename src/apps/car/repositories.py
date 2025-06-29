@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlmodel import Session
 from src.apps.user.models import User
 from src.apps.car.models import Car
@@ -8,24 +9,24 @@ class CarRepository:
     def __init__(self, session: Session):
         self.session: Session = session
 
-    def get_all(self, mark: int = None) -> list[Car]:
-        if mark:
-            return self.session.query(Car).filter(Car.mark_id == mark).all()
+    def get_all(self, mark_id: Optional[int] = None) -> list[Car]:
+        if mark_id:
+            return self.session.query(Car).filter(Car.mark_id == mark_id).all()
         return self.session.query(Car).all()
 
     def get_by_id(self, car_id: int) -> Car | None:
         return self.session.query(Car).filter(Car.id == car_id).first()
 
-    def create(self, username: str, car_data: CarCreateSchema) -> Car:
-        user_id = self.session.query(User).filter(User.username == username).first().id
+    def create(self, user_id: int, car_data: CarCreateSchema) -> Car:
         car = Car(**car_data.dict(), user_id=user_id)
         self.session.add(car)
         self.session.commit()
         self.session.refresh(car)
         return car
 
-    def update(self, user_data, car_id: int, car_data: CarCreateSchema) -> Car | dict:
-        user_id = self.session.query(User).filter(User.username == user_data).first().id
+    def update(
+        self, user_id: int, car_id: int, car_data: CarCreateSchema
+    ) -> Car | dict:
         car = self.get_by_id(car_id)
         if not car:
             return {"message": "Car not found"}
@@ -36,10 +37,12 @@ class CarRepository:
         self.session.commit()
         return car
 
-    def delete(self, car_id: int) -> dict | None:
+    def delete(self, car_id: int, user_id: int) -> dict | None:
         car = self.get_by_id(car_id)
         if not car:
             return None
+        if car.user_id != user_id:
+            return {"message": "You are not authorized to delete this car"}
         self.session.delete(car)
         self.session.commit()
         return {"message": "Car deleted successfully"}

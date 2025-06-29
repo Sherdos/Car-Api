@@ -31,7 +31,7 @@ def login_for_access_token(
     service = UserService(db_session=db_session)
     user = service.login_user(username=form_data.username, password=form_data.password)
 
-    access_token = create_access_token(data={"sub": user.username})
+    access_token = create_access_token(user.dict())
     return {"access_token": access_token, "token_type": "bearer"}
 
 

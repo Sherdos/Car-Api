@@ -13,3 +13,6 @@ class CarCreateSchema(CarBaseSchema):
 
 class CarReadSchema(CarBaseSchema):
     id: int
+
+    class Config:
+        from_attributes = True
