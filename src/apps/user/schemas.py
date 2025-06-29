@@ -2,14 +2,18 @@ from pydantic import BaseModel
 
 
 class UserBaseSchema(BaseModel):
-    password: str
-
-
-class UserCreateSchema(UserBaseSchema):
+    id: int
     username: str
     email: str
 
 
-class UserUpdateSchema(UserBaseSchema):
+class UserCreateSchema(BaseModel):
+    username: str
+    email: str
+    password: str
+
+
+class UserUpdateSchema(BaseModel):
     email: str | None
     username: str | None
+    password: str | None

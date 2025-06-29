@@ -15,8 +15,8 @@ class CarService:
         cars = self.repository.get_all(mark_id)
         return cars
 
-    def create_car(self, car_data: CarCreateSchema) -> Car:
-        car = self.repository.create(car_data)
+    def create_car(self, username: str, car_data: CarCreateSchema) -> Car:
+        car = self.repository.create(username, car_data)
         return car
 
     def get_car(self, car_id) -> Car | None:
@@ -25,10 +25,15 @@ class CarService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
         return car
 
-    def update_car(self, car_id: int, car_data: CarCreateSchema) -> Car | None:
-        car = self.repository.update(car_id, car_data)
-        if car == None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    def update_car(
+        self, car_id: int, user_data: dict, car_data: CarCreateSchema
+    ) -> Car:
+
+        car = self.repository.update(user_data, car_id, car_data)
+        if type(car) is dict:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=car.get("message")
+            )
         return car
 
     def delete_car(self, car_id: int) -> dict:

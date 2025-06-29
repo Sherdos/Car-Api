@@ -22,17 +22,22 @@ def create_access_token(data: dict):
 
 def get_current_user(
     token: str = Depends(oauth_scheme),
-    credentions_exception=HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    ),
 ):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentions_exception
-        return username
-    except jwt.JWTError:
-        raise credentions_exception
+    print("Validating user...")
+
+    print("Payload:", token)
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    user_data = payload.get("sub")
+    if user_data is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return user_data
+    # except jwt.JWTError:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_401_UNAUTHORIZED,
+    #         detail="Could not validate credentials",
+    #         headers={"WWW-Authenticate": "Bearer"},
+    #     )

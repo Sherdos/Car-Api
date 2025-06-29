@@ -3,6 +3,7 @@ from fastapi import APIRouter, FastAPI, Depends
 
 from sqlmodel import Session
 
+from src.apps.user.auth import get_current_user
 from src.core.database import create_db_and_tables, get_session
 from src.apps.car.schemas import CarCreateSchema, CarReadSchema
 from src.apps.car.services import CarService
@@ -13,7 +14,8 @@ car_router = APIRouter()
 
 @car_router.get("", response_model=List[CarReadSchema])
 def get_all_cars(
-    mark: int = None, session: Session = Depends(get_session)
+    mark: int = None,
+    session: Session = Depends(get_session),
 ) -> List[CarReadSchema]:
     cars = CarService(session).get_all_cars(mark)
     return cars
@@ -35,17 +37,25 @@ def get_car_by_id(
 
 @car_router.post("/", response_model=CarReadSchema)
 def add_car(
-    car: CarCreateSchema, session: Session = Depends(get_session)
+    car: CarCreateSchema,
+    session: Session = Depends(get_session),
+    user_data: dict = Depends(get_current_user),
 ) -> CarReadSchema:
-    new_car = CarService(session).create_car(car)
+    new_car = CarService(session).create_car(
+        user_data,
+        car,
+    )
     return new_car
 
 
 @car_router.put("/{car_id}", response_model=CarReadSchema)
 def edit_car(
-    car_id: int, car: CarCreateSchema, session: Session = Depends(get_session)
+    car_id: int,
+    car: CarCreateSchema,
+    session: Session = Depends(get_session),
+    user_data: dict = Depends(get_current_user),
 ) -> CarReadSchema:
-    updated_car = CarService(session).update_car(car_id, car)
+    updated_car = CarService(session).update_car(car_id, user_data, car)
     return updated_car
 
 
