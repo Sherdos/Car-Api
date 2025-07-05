@@ -1,14 +1,14 @@
 from typing import List
-from fastapi import FastAPI, Depends
 
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session
-
-from src.core.database import create_db_and_tables, get_session
-from src.apps.car.schemas import CarCreateSchema, CarReadSchema
-from src.apps.car.services import CarService
 
 from src.api.cars import car_router
 from src.api.user import user_router
+from src.core.database import create_db_and_tables
 
 # models -> repositories -> services -> routers
 
@@ -17,11 +17,30 @@ app = FastAPI(
     description="API for managing cars",
     version="0.0.1",
 )
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+templates = Jinja2Templates(directory="templates")
 
 
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
+
+
+@app.get("/items/{id}", response_class=HTMLResponse)
+async def read_item(request: Request, id: str):
+
+    return templates.TemplateResponse(
+        request=request, name="item.html", context={"id": id}
+    )
+
+
+@app.get("/", response_class=HTMLResponse)
+async def read_home(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="home.html", context={"title": "Home"}
+    )
 
 
 app.include_router(car_router, prefix="/api/cars", tags=["Cars"])
