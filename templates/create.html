@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+    {% block content %}
+            <input type="text" name="name" placeholder="Name" required>
+            <input type="text" name="color" placeholder="Color" required>
+            <input type="number" name="mark_id" placeholder="Mark Id" required>
+            <button type="button" onclick="createCar()">Create Car</button>
+
+
+        <script>
+            async function createCar() {
+                const name = document.querySelector('input[name="name"]').value;
+                const color = document.querySelector('input[name="color"]').value;
+                const mark_id = document.querySelector('input[name="mark_id"]').value;
+
+                const response = await fetch('/api/cars/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzUxNzE3NDQ3fQ.-lplLekVM4R4j-j6weroJpTWK219xcqN2UQwuR_p0y8"
+                    },
+                    body: JSON.stringify({ name, color, mark_id })
+                });
+
+                if (response.ok) {
+                    alert('Car created successfully!');
+                } else {
+                    alert('Failed to create car.');
+                }
+            }
+
+            document.querySelector('button').addEventListener('click', createCar);
+        </script>
+    {% endblock %}

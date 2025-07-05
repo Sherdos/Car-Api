@@ -19,3 +19,10 @@
 ## 4 Run the app
 
 `uvicorn main:app --reload`
+
+## Требование к проекту
+
+1. CRUD Systems, Search
+2. User Authentication via JWT
+3. Test HTML
+4. Structure model -> repository -> service -> route

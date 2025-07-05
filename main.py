@@ -43,5 +43,23 @@ async def read_home(request: Request):
     )
 
 
+@app.get("/about", response_class=HTMLResponse)
+async def read_about(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="about.html", context={"title": "About"}
+    )
+
+
+@app.get("/create", response_class=HTMLResponse)
+async def read_create(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="create.html", context={"title": "Create Car"}
+    )
+
+
+# about
+
+# create car
+
 app.include_router(car_router, prefix="/api/cars", tags=["Cars"])
 app.include_router(user_router, prefix="/api/users", tags=["Users"])

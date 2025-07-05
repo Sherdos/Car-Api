@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from src.apps.user.schemas import UserBaseSchema
+
 
 class CarBaseSchema(BaseModel):
     name: str
@@ -13,6 +15,7 @@ class CarCreateSchema(CarBaseSchema):
 
 class CarReadSchema(CarBaseSchema):
     id: int
+    user_id: int
 
     class Config:
         from_attributes = True
