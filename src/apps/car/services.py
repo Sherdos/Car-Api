@@ -1,6 +1,8 @@
 from typing import Optional
 from sqlmodel import Session
-from fastapi import HTTPException, status
+from fastapi import HTTPException, UploadFile, status
+
+from random import randint
 
 from src.apps.car.models import Car
 from src.apps.car.repositories import CarRepository
@@ -50,3 +52,15 @@ class CarService:
                 status_code=status.HTTP_404_NOT_FOUND, detail="Car not found"
             )
         return cars
+
+    def upload_image(self, file: UploadFile, user_data: dict) -> dict:
+        if not file:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="No file provided"
+            )
+
+        file_path = f"media/{randint(1, 10000)}_{file.filename}"
+        with open(file_path, "wb") as f:
+            f.write(file.file.read())
+
+        return {"message": "Image uploaded successfully", "file_path": file_path}

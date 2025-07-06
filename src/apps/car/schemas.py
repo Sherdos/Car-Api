@@ -7,6 +7,7 @@ class CarBaseSchema(BaseModel):
     name: str
     color: str
     mark_id: int
+    image_url: str
 
 
 class CarCreateSchema(CarBaseSchema):

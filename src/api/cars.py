@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import APIRouter, FastAPI, Depends
+from fastapi import APIRouter, FastAPI, Depends, UploadFile
 
 from sqlmodel import Session
 
@@ -73,3 +73,13 @@ def delete_car(
 ) -> dict:
     message = CarService(session).delete_car(car_id, user_data)
     return message
+
+
+@car_router.post("/upload-image", response_model=dict)
+def image_upload(
+    file: UploadFile,
+    session: Session = Depends(get_session),
+    user_data: dict = Depends(get_current_user),
+) -> dict:
+
+    return CarService(session).upload_image(file, user_data)

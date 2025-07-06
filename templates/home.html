@@ -22,7 +22,7 @@
                     const carElement = document.createElement('div');
                     carElement.className = 'card';
                     carElement.style = 'width: 18rem;';
-                    carElement.innerHTML = `<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdkFeXoT4-TmiS70ZjX2Nd0PtpywmnZoxfnnPWXtTdtFyIEuG-zFuq0Dg&s" class="card-img-top" alt="${car.name}">`;
+                    carElement.innerHTML = `<img src="${  car.image_url }" class="card-img-top" alt="${car.name}">`;
                     carElement.innerHTML += `<div class="card-body">
                                         <h5 class="card-title">${car.name}</h5>
                                         <p class="card-text">Color: ${car.color}</p>

@@ -11,7 +11,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
-oauth_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth_scheme = OAuth2PasswordBearer(tokenUrl="api/users/token")
 
 
 def create_access_token(user: dict):
@@ -25,9 +25,7 @@ def create_access_token(user: dict):
 def get_current_user(
     token: str = Depends(oauth_scheme),
 ):
-    print("Validating user...")
     try:
-        print("Payload:", token)
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
         if user_id is None:

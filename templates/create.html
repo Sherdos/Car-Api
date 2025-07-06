@@ -4,6 +4,7 @@
             <input type="text" name="name" placeholder="Name" required>
             <input type="text" name="color" placeholder="Color" required>
             <input type="number" name="mark_id" placeholder="Mark Id" required>
+            <input type="user_token" name="user_token" placeholder="User Token" required>
             <button type="button" onclick="createCar()">Create Car</button>
 
 
@@ -12,12 +13,13 @@
                 const name = document.querySelector('input[name="name"]').value;
                 const color = document.querySelector('input[name="color"]').value;
                 const mark_id = document.querySelector('input[name="mark_id"]').value;
+                const user_token = document.querySelector('input[name="user_token"]').value;
 
                 const response = await fetch('/api/cars/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZXhwIjoxNzUxNzE3NDQ3fQ.-lplLekVM4R4j-j6weroJpTWK219xcqN2UQwuR_p0y8"
+                        'Authorization': 'Bearer ' + `${user_token}`
                     },
                     body: JSON.stringify({ name, color, mark_id })
                 });

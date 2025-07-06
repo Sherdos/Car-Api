@@ -11,6 +11,7 @@ class Car(SQLModel, table=True):
     user_id: int = Field(
         default=None, foreign_key="user.id"
     )  # Foreign key to User table
+    image_url: str = Field(default="")
 
 
 class Mark(SQLModel, table=True):

@@ -1,0 +1,7 @@
+root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --font-family: "Helvetica Neue", sans-serif;
+    --font-size: 16px;
+    --line-height: 1.5;
+}
